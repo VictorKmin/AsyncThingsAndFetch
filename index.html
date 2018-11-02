@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+Hello
+
+
+<script>
+
+
+    function sum(n1, n2) {
+        return new Promise(resolve => {
+            setTimeout(function () {
+                console.log('I am in sum');
+                resolve(n1 + n2)
+            }, 3000)
+        })
+    }
+
+    function mult(nember) {
+        return new Promise(resolve => {
+            setTimeout(function () {
+                console.log('___________');
+                console.log('I am in mult');
+                resolve(nember + 25)
+            }, 3000)
+        })
+    }
+
+    function div(someNumber) {
+        return new Promise(resolve => {
+            setTimeout(function () {
+                console.log('___________');
+                console.log('I am in div');
+                resolve(someNumber / 10)
+            }, 3000)
+        })
+    }
+
+
+//ASYNC AWAIT
+    async function f() {
+        let sum1 = await sum(10,20)
+        console.log(sum1);
+        let mult1 = await mult(sum1)
+        console.log(mult1);
+        let div1 = await div(mult1)
+        console.log(div1);
+    }
+
+    // f()
+
+
+    // // PROMISE
+    // sum(10,20)
+    //     .then(value => {
+    //         console.log(value);
+    //         return  mult(value);
+    //     })
+    //     .then(value => {
+    //         console.log(value)
+    //         return div(value)
+    //     }).then(value => {
+    //     console.log(value);
+    // })
+
+
+    // // CALBACK HELL !
+    // // If u want to use callback uncomment this code
+
+    function sum(n1, n2, cb) {
+            setTimeout(function () {
+                console.log('I am in sum');
+                cb(n1 + n2)
+            }, 3000)
+    }
+
+    function mult(nember, cb) {
+            setTimeout(function () {
+                console.log('___________');
+                console.log('I am in mult');
+                cb(nember + 25)
+            }, 3000)
+    }
+
+    function div(someNumber, cb) {
+            setTimeout(function () {
+                console.log('___________');
+                console.log('I am in div');
+                cb(someNumber / 10)
+            }, 3000)
+    }
+    sum(10,20, function (number) {
+        console.log(number);
+        mult(number, function (newValue) {
+            console.log(newValue)
+            div(newValue, function (num) {
+                console.log(num);
+            })
+        })
+    })
+
+
+    // _______________________________________________________________
+
+
+    //АСИНХРОННІСТЬ
+    // Показати приклад з простим кодом нижче
+
+    function s(num) {
+        console.log('I AM SYNC FUNCTION')
+        return num * 10
+    }
+
+    function as(n1, n2) {
+        setTimeout(function () {
+            console.log('And I am ASYNC')
+            console.log(n1, n2);
+            return n1 + n2
+        }, 2000)
+    }
+
+    // Порядок виконання такий, що перше мало б виконатись додавання, а тоді множення
+    let res = as(10,20);
+
+    let finalRes = s(res);
+
+    console.log(finalRes);
+    // Розказати та намалювати івент луп !!!!!!!!!!!!!!!!!!!!!
+
+    // Зробимо ті самі функції, але на колбеках
+
+    //головна асинхронна функція. Вона буде викликатись
+    function asy(n1, n2, cb) {
+        setTimeout(function () {
+            console.log(n1 + n2);
+            // В кінці всього ми викликаємо колбек та передаємо йому результат
+            cb(n1 + n2)
+        }, 2000)
+    }
+
+    // Функція, яка буде виступати як колбек всередині колбека
+    //Вона має свій колбек
+    function div(num, cb) {
+        setTimeout(function () {
+            cb(num / 100)
+        }, 3000)
+    }
+
+    function theEnd(cb) {
+        setTimeout(function () {
+            console.log('Нарешті готово');
+            cb()
+        }, 1000)
+    }
+
+    // Викликаємо нашу основну асинхронну функцію
+    // В якості колбека просто фукця (firstNum робиться на 32 рядку)
+    asy(10, 20, function (firstNum) {
+        //Всередині ще одна асинхронність
+        setTimeout(function () {
+            console.log(firstNum * 10);
+            //Яке викликає функцію div якій колбеком передаємо функцію
+            //result утворюється на 39 стрічці
+            div(firstNum * 10, function (result) {
+                //Виводжу на консоль результат
+                console.log(result);
+                //І викликаю функцію, яка є асинхронною і має свій колбек
+                theEnd(function () {
+                    // І останній колбек функції thrEnd
+                    setTimeout(function () {
+                        console.log('Чи ще не готово?')
+                    }, 1000)
+                })
+            })
+        }, 2000)
+    });
+    //CALLBACK HELL в дії
+
+
+    //Далі розказати про проміси
+    //Стани промісів onFulfilled, onReject, pending
+    // Шо це є заміна колбекам і воно забирає колбек хелл
+    let promise = function (n1, n2) {
+        return new Promise(resolve => {
+            setTimeout(function () {
+                console.log(n1 + n2);
+                resolve (n1+n2);
+            },2000);
+        })
+    };
+
+    // КОЖНА АСИНХРОННА ДІЯ МАЄ БУТИ ОГОНУТА В ПРОМІС !!!!
+    let mult = function(num) {
+        return new Promise(resolve => {
+            setTimeout(function () {
+                let res = num*100
+                console.log(res);
+                resolve(res)
+                return res
+            },3000)
+        })
+    };
+
+    let theEnd = function() {
+        return new Promise((resolve) => {
+            setTimeout(function () {
+                console.log('THE END !');
+                resolve('HELLO')
+            },1000)
+        })
+    };
+
+    // тут в свою чергу просто виконуються дії по цепочці. Одна за одною
+    promise(10,20).then(value => {
+        return value
+    }).then(value => {
+        let newVal = value/2
+        return mult(newVal)
+    }).then(() => {
+        return theEnd();
+    }).then(value => {
+        console.log(value);
+    });
+
+
+    // ASYNC AWAIT
+
+    // Поскільки функції є асинхронні,вони всеодно мають повертати проміс
+    function sum(n1, n2) {
+        return new Promise(resolve => {
+            setTimeout(function () {
+                let res = n1 + n2;
+                resolve(res)
+            }, 2000)
+        })
+    }
+
+    function mul(num) {
+        return new Promise(resolve => {
+            setTimeout(function () {
+                let res = num * 100
+                resolve(res)
+            },3000)
+        })
+    }
+
+    // Шо б можна було нормально все писати маємо створити
+    // функцію, перед якою поставити ключове слово async
+    // тоді всередині неї можна буде використовувати await
+    async function resulr() {
+        const a = await sum(10, 20);
+        console.log(a);
+        const b = await mul(a)
+        console.log(b);
+    }
+
+    resulr()
+
+
+    // -------------------------------------------------------------
+    //-------------------------------------------------------------
+
+    // HOW TO USE FETCH !!!!!!
+    // ASYNC AWAIT AND PROMISE
+
+    // let p = fetch('https://jsonplaceholder.typicode.com/users')
+    //
+    // async function f() {
+    //     let res = await p;
+    //     let users = await res.json();
+    //     console.log(users);
+    // }
+    // f()
+    //
+    // let r = fetch('https://jsonplaceholder.typicode.com/users')
+    //
+    // r.then(res =>{
+    //     return res.json()
+    // }).then(users =>{
+    //     for (const rElement of users) {
+    //         console.log(rElement.name);
+    //     }
+    // })
+</script>
+</body>
+</html>
